@@ -200,13 +200,33 @@ eval("\n\n/* istanbul ignore next  */\nfunction styleTagTransform(css, styleElem
 
 /***/ }),
 
-/***/ "./src/App.tsx":
-/*!*********************!*\
-  !*** ./src/App.tsx ***!
-  \*********************/
+/***/ "./src/components/App.tsx":
+/*!********************************!*\
+  !*** ./src/components/App.tsx ***!
+  \********************************/
 /***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _styles_App_less__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./styles/App.less */ \"./src/styles/App.less\");\n\r\n\r\nfunction App() {\r\n    return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"div\", { className: \"App\" },\r\n        react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"h1\", null, \"Hello Carousel\")));\r\n}\r\n/* harmony default export */ __webpack_exports__[\"default\"] = (App);\r\n\n\n//# sourceURL=webpack://carousel-project/./src/App.tsx?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _styles_App_less__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../styles/App.less */ \"./src/styles/App.less\");\n/* harmony import */ var _Carousel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Carousel */ \"./src/components/Carousel.tsx\");\n\r\n\r\n\r\nfunction App() {\r\n    return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"div\", { className: \"App\" },\r\n        react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_Carousel__WEBPACK_IMPORTED_MODULE_2__[\"default\"], null)));\r\n}\r\n/* harmony default export */ __webpack_exports__[\"default\"] = (App);\r\n\n\n//# sourceURL=webpack://carousel-project/./src/components/App.tsx?");
+
+/***/ }),
+
+/***/ "./src/components/Carousel.tsx":
+/*!*************************************!*\
+  !*** ./src/components/Carousel.tsx ***!
+  \*************************************/
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _Photo__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Photo */ \"./src/components/Photo.tsx\");\n\r\n\r\nfunction Carousel() {\r\n    var _a = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([0, 1, 2]), imgsIds = _a[0], setImgsIds = _a[1];\r\n    var _b = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]), imgsUrls = _b[0], setImgsUrls = _b[1];\r\n    (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {\r\n        fetch('https://picsum.photos/v2/list', {\r\n            method: 'GET'\r\n        })\r\n            .then(function (response) {\r\n            response.json().then(function (data) {\r\n                var urls = [];\r\n                data.forEach(function (element) {\r\n                    urls.push(element[\"url\"]);\r\n                });\r\n                console.log(urls);\r\n                setImgsUrls(urls);\r\n            });\r\n        });\r\n    }, []);\r\n    return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"div\", { className: 'Carousel' }, imgsUrls.map(function (id) {\r\n        console.log(imgsUrls);\r\n        console.log(imgsUrls[id]);\r\n        return react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_Photo__WEBPACK_IMPORTED_MODULE_1__[\"default\"], { photoSrc: imgsUrls[id] });\r\n    })));\r\n}\r\n/* harmony default export */ __webpack_exports__[\"default\"] = (Carousel);\r\n\n\n//# sourceURL=webpack://carousel-project/./src/components/Carousel.tsx?");
+
+/***/ }),
+
+/***/ "./src/components/Photo.tsx":
+/*!**********************************!*\
+  !*** ./src/components/Photo.tsx ***!
+  \**********************************/
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);\n\r\nfunction Photo(props) {\r\n    console.log(props.photoSrc);\r\n    return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(\"img\", { src: props.photoSrc, alt: \"\" }));\r\n}\r\n/* harmony default export */ __webpack_exports__[\"default\"] = (Photo);\r\n\n\n//# sourceURL=webpack://carousel-project/./src/components/Photo.tsx?");
 
 /***/ }),
 
@@ -216,7 +236,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var reac
   \***********************/
 /***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var react_dom_client__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-dom/client */ \"./node_modules/react-dom/client.js\");\n/* harmony import */ var _styles_index_less__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./styles/index.less */ \"./src/styles/index.less\");\n/* harmony import */ var _App__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./App */ \"./src/App.tsx\");\n\r\n\r\n\r\n\r\nvar root = react_dom_client__WEBPACK_IMPORTED_MODULE_1__.createRoot(document.getElementById('root'));\r\nroot.render(react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().StrictMode), null,\r\n    react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_App__WEBPACK_IMPORTED_MODULE_3__[\"default\"], null)));\r\n\n\n//# sourceURL=webpack://carousel-project/./src/index.tsx?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var react_dom_client__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-dom/client */ \"./node_modules/react-dom/client.js\");\n/* harmony import */ var _styles_index_less__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./styles/index.less */ \"./src/styles/index.less\");\n/* harmony import */ var _components_App__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/App */ \"./src/components/App.tsx\");\n\r\n\r\n\r\n\r\nvar root = react_dom_client__WEBPACK_IMPORTED_MODULE_1__.createRoot(document.getElementById('root'));\r\nroot.render(react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().StrictMode), null,\r\n    react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components_App__WEBPACK_IMPORTED_MODULE_3__[\"default\"], null)));\r\n\n\n//# sourceURL=webpack://carousel-project/./src/index.tsx?");
 
 /***/ })
 
