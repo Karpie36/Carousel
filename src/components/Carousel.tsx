@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactNode } from 'react';
+import React, { useState, useEffect } from 'react';
 import Photo from "./Photo";
 
 interface PhotoObject {
@@ -38,9 +38,17 @@ function Carousel() {
                     return <Photo photoSLUG={imgsSLUGs[id]} photoNumber={id}/>
                 })
             }
+            <button 
+                onClick={event => {
+                    event.preventDefault();
+                    const newImgsIds : Array<number> = imgsIds.map(id => {
+                        return (id + 3) % imgsSLUGs.length
+                    });
+                    setImgsIds(newImgsIds);
+                }
+            }>Next</button>
         </div>
     )
-
 }
 
 export default Carousel;

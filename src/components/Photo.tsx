@@ -7,7 +7,7 @@ type PhotoProps ={
 
 function Photo(props: PhotoProps) {
     return (
-        <img src={`http://source.unsplash.com/${props.photoSLUG}`} alt={`Id number ${props.photoNumber}`} />
+        <img className="Photo" src={`http://source.unsplash.com/${props.photoSLUG}`} alt={`Id number ${props.photoNumber}`} />
     )
 }
 
