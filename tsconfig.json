@@ -5,7 +5,11 @@
     "module": "es6",
     "target": "es5",
     "allowJs": true,
-    "jsx": "react"
+    "jsx": "react",
+    "types": [
+      "webpack-env",
+      "node"
+    ]
   },
   "files": ["src/index.tsx"]
 }
