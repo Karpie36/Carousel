@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { resolve } from 'path';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Carousel.less';
 import Slider from './Slider';
 
@@ -12,8 +13,9 @@ interface PhotoObject {
 }
 
 function Carousel() {
-    const [imgsIds, setImgsIds] = useState([0, 1, 2])
-    const [imgsSLUGs, setImgsSLUGs]= useState([])
+    const [imgsIds, setImgsIds] = useState([0, 1, 2]);
+    const [imgsSLUGs, setImgsSLUGs]= useState([]);
+    const isInitialMount = useRef(true);
 
     useEffect(() => {
         fetch('https://picsum.photos/v2/list', {
@@ -32,6 +34,33 @@ function Carousel() {
         })
     }, [])
 
+    useEffect(() => {
+        if (isInitialMount.current) {
+           isInitialMount.current = false;
+        } else {
+            // Your useEffect code here to be run on update
+            const slider : HTMLElement = document.querySelector('.Slider');
+            slider.style.animation = 'movingLeftInside 0.5s 0.5s forwards';
+        }
+    });
+
+    function changePhotos() {
+        const slider : HTMLElement = document.querySelector('.Slider');
+        slider.style.animation = 'movingLeftOutside 0.5s forwards';
+        Promise.all(
+            slider.getAnimations().map(animation => {
+                return animation.finished
+            })
+        )
+        .then(result => {
+            const newImgsIds : Array<number> = imgsIds.map(id => {
+                return (id + 3) % imgsSLUGs.length
+            });
+            setImgsIds(newImgsIds);
+            slider.style.marginLeft = '100%';
+        })
+    }
+
     return (
         <div className='Carousel'>
             <Slider imgsIds={imgsIds} imgsSLUGs={imgsSLUGs}/>
@@ -39,10 +68,7 @@ function Carousel() {
                 className='nextBtn'
                 onClick={event => {
                     event.preventDefault();
-                    const newImgsIds : Array<number> = imgsIds.map(id => {
-                        return (id + 3) % imgsSLUGs.length
-                    });
-                    setImgsIds(newImgsIds);
+                    changePhotos();
                 }
             }>Next</button>
         </div>
