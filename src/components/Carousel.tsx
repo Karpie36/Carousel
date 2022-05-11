@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Photo from "./Photo";
+import '../styles/Carousel.less';
+import Slider from './Slider';
 
 interface PhotoObject {
     id: string,
@@ -23,7 +24,7 @@ function Carousel() {
                 const slugs : Array<string> = []
                 data.forEach((element: PhotoObject) => {
                     const url_address = element["url"];
-                    const slug = url_address.includes('https://unsplash.com/photos/') ? url_address.replace('https://unsplash.com/photos/', '') : ""
+                    const slug = url_address.includes('https://unsplash.com/photos/') ? url_address.replace('https://unsplash.com/photos/', '') : '';
                     slug && slugs.push(slug);
                 });
                 setImgsSLUGs(slugs);
@@ -33,12 +34,9 @@ function Carousel() {
 
     return (
         <div className='Carousel'>
-            {
-                imgsIds.map((id:number) => {
-                    return <Photo photoSLUG={imgsSLUGs[id]} photoNumber={id}/>
-                })
-            }
-            <button 
+            <Slider imgsIds={imgsIds} imgsSLUGs={imgsSLUGs}/>
+            <button
+                className='nextBtn'
                 onClick={event => {
                     event.preventDefault();
                     const newImgsIds : Array<number> = imgsIds.map(id => {

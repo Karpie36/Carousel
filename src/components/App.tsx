@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/styles.less';
+import '../styles/App.less';
 import Carousel from './Carousel';
 
 function App() {

@@ -1,4 +1,5 @@
 import React from "react";
+import '../styles/Photo.less';
 
 type PhotoProps ={
     photoSLUG: string,
