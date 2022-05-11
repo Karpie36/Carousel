@@ -1,16 +1,33 @@
 .Carousel {
     position: relative;
     display: grid;
+    justify-content: center;
     width: 100%;
     background-color: #ccc;
     border: 0px solid #ccc;
-    border-radius: 5px;
+    border-radius: 7px;
     overflow: hidden;
 
-    .nextBtn {
+    .btn {
         display: inline-block;
         position: absolute;
-        right: 0%;
         height: 100%;
+        width: 10%;
+        background-color: rgba(150, 150, 150, 0.5);
+        border: none;
+        &:hover {
+            cursor: pointer;
+            background-color: rgba(150, 150, 150, 0.3);
+        }
+    }
+
+    .prevBtn {
+        left: 0;
+        .btn();
+    }
+
+    .nextBtn {
+        right: 0;
+        .btn();
     }
 }

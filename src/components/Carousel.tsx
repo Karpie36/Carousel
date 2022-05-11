@@ -12,6 +12,8 @@ interface PhotoObject {
     downloadUrl: string
 }
 
+let sliderDirection = 1;
+
 function Carousel() {
     const [imgsIds, setImgsIds] = useState([0, 1, 2]);
     const [imgsSLUGs, setImgsSLUGs]= useState([]);
@@ -40,13 +42,14 @@ function Carousel() {
         } else {
             // Your useEffect code here to be run on update
             const slider : HTMLElement = document.querySelector('.Slider');
-            slider.style.animation = 'movingLeftInside 0.5s 0.5s forwards';
+            slider.style.animation = sliderDirection==1 ? 'movingLeftInside 2s forwards' : 'movingRightInside 2s forwards';
         }
     });
 
-    function changePhotos() {
+    function changePhotos(direction : number) {
+        sliderDirection = direction;
         const slider : HTMLElement = document.querySelector('.Slider');
-        slider.style.animation = 'movingLeftOutside 0.5s forwards';
+        slider.style.animation = direction == 1 ? 'movingLeftOutside 1s forwards' : 'movingRightOutside 1s forwards';
         Promise.all(
             slider.getAnimations().map(animation => {
                 return animation.finished
@@ -54,21 +57,28 @@ function Carousel() {
         )
         .then(result => {
             const newImgsIds : Array<number> = imgsIds.map(id => {
-                return (id + 3) % imgsSLUGs.length
+                return (id + direction*imgsIds.length + imgsSLUGs.length) % imgsSLUGs.length
             });
             setImgsIds(newImgsIds);
-            slider.style.marginLeft = '100%';
+            slider.style.marginLeft = direction == 1 ? '200%' : '-200%';
         })
     }
 
     return (
         <div className='Carousel'>
+            <button
+                className='prevBtn'
+                onClick={event => {
+                    event.preventDefault();
+                    changePhotos(-1);
+                }
+            }>Prev</button>
             <Slider imgsIds={imgsIds} imgsSLUGs={imgsSLUGs}/>
             <button
                 className='nextBtn'
                 onClick={event => {
                     event.preventDefault();
-                    changePhotos();
+                    changePhotos(1);
                 }
             }>Next</button>
         </div>

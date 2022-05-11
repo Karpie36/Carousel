@@ -8,7 +8,16 @@ type PhotoProps ={
 
 function Photo(props: PhotoProps) {
     return (
-        <img className="Photo" src={`http://source.unsplash.com/${props.photoSLUG}`} alt={`Id number ${props.photoNumber}`} />
+        <img 
+            className="Photo" 
+            src={`http://source.unsplash.com/${props.photoSLUG}`}
+            alt={`Id number ${props.photoNumber}`} 
+            onError={event => {
+                const photo = event.target as HTMLElement;
+                photo.setAttribute('alt', 'Image not found');
+                photo.setAttribute('title', 'Image not found');
+            }} 
+        />
     )
 }
 
