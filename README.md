@@ -1,15 +1,8 @@
-# 🚀 Welcome to your new awesome project!
+Carousel project has been created using React, Typescript, Webpack and LESS. 
 
-This project has been created using **webpack-cli**, you can now run
-
+To to bundle application use command
 ```
 npm run build
 ```
 
-or
-
-```
-yarn build
-```
-
-to bundle your application
+Enjoy! 😉
