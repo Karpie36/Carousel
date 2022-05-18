@@ -1,6 +1,8 @@
 import { resolve } from 'path';
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Carousel.less';
+// import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import Button from './Button';
 import Slider from './Slider';
 
 interface PhotoObject {
@@ -13,6 +15,7 @@ interface PhotoObject {
 }
 
 let sliderDirection = 1;
+const mobileViewPort = window.matchMedia('(max-width: 700px)');
 
 function Carousel() {
     const [imgsIds, setImgsIds] = useState([0, 1, 2]);
@@ -35,6 +38,43 @@ function Carousel() {
             });
         })
     }, [])
+
+    function changeCarouselSize() {
+        const photos = document.querySelectorAll('.Photo');
+        photos.forEach((p : HTMLElement) => {
+            p.setAttribute("style", `max-height: none`);
+        })
+        const slider : HTMLElement = document.querySelector('.Slider');
+        const app : HTMLElement = document.querySelector('.App');
+        const appWidth = app.offsetWidth;
+        const sliderWidth = imgsIds.length == 3 ? 3.5 : 1;
+        slider.setAttribute("style", `width: ${appWidth/sliderWidth}px`);
+        const sliderHeight = slider.offsetHeight;
+        slider.setAttribute("style", `height: ${sliderHeight + 20}px`);
+        photos.forEach(photo => {
+            photo.setAttribute("style", `max-height: ${sliderHeight}px`);
+        });
+    
+        return app;
+    }
+
+    window.addEventListener('load', () => {
+        const app = changeCarouselSize();
+        app.style.display = "flex";
+    })
+
+    mobileViewPort.addListener(mq => {
+        const carousel = document.querySelector('.Carousel');
+        if(mq.matches) {
+            carousel.setAttribute('style', 'width: 70%');
+            setImgsIds([imgsIds[1]]);
+        }
+        else {
+            carousel.setAttribute('style', 'width: 100%');
+            setImgsIds([imgsIds[0], imgsIds[0] + 1, imgsIds[0] + 2]);
+        }
+        changeCarouselSize();
+    })
 
     useEffect(() => {
         if (isInitialMount.current) {
@@ -66,21 +106,9 @@ function Carousel() {
 
     return (
         <div className='Carousel'>
-            <button
-                className='prevBtn'
-                onClick={event => {
-                    event.preventDefault();
-                    changePhotos(-1);
-                }
-            }>Prev</button>
+            <Button nameOfClass={'prevBtn'} name={'Prev'} changePhotos={changePhotos} direction={-1}/>
             <Slider imgsIds={imgsIds} imgsSLUGs={imgsSLUGs}/>
-            <button
-                className='nextBtn'
-                onClick={event => {
-                    event.preventDefault();
-                    changePhotos(1);
-                }
-            }>Next</button>
+            <Button nameOfClass={'nextBtn'} name={'Next'} changePhotos={changePhotos} direction={1}/>
         </div>
     )
 }
