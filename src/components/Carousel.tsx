@@ -1,9 +1,9 @@
-import { resolve } from 'path';
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import '../styles/Carousel.less';
 // import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import Button from './Button';
-import Slider from './Slider';
+import '../styles/Button.less';
+import PhotosContainer from './PhotosContainer';
+import { act } from 'react-dom/test-utils';
 
 interface PhotoObject {
     id: string,
@@ -14,15 +14,38 @@ interface PhotoObject {
     downloadUrl: string
 }
 
-let sliderDirection = 1;
+let direction = 1;
 const mobileViewPort = window.matchMedia('(max-width: 700px)');
 
-function Carousel() {
-    const [imgsIds, setImgsIds] = useState([0, 1, 2]);
-    const [imgsSLUGs, setImgsSLUGs]= useState([]);
-    const isInitialMount = useRef(true);
+type CarouselPropsType = {
+    changeCarouselSize: () => {}
+}
 
-    useEffect(() => {
+type CarouselStateType = {
+    activePhotosContainer: boolean,
+    firstPhotosContainer: { position: string, imgsIds: Array<number> },
+    secondPhotosContainer: { position: string, imgsIds: Array<number> },
+    imgsSLUGs: Array<string>
+}
+
+class Carousel extends React.Component<CarouselPropsType, CarouselStateType> {
+    constructor(props: CarouselPropsType) {
+        super(props);
+        this.state = {
+            activePhotosContainer: true,
+            firstPhotosContainer: {
+                position: '0',
+                imgsIds: [0, 1, 2]
+            },
+            secondPhotosContainer: {
+                position: '0',
+                imgsIds: [3, 4, 5]
+            },
+            imgsSLUGs: []
+        };
+    }
+
+    componentDidMount() {
         fetch('https://picsum.photos/v2/list', {
             method: 'GET'
         })
@@ -34,83 +57,131 @@ function Carousel() {
                     const slug = url_address.includes('https://unsplash.com/photos/') ? url_address.replace('https://unsplash.com/photos/', '') : '';
                     slug && slugs.push(slug);
                 });
-                setImgsSLUGs(slugs);
+                this.setState({
+                    ...this.state,
+                    imgsSLUGs: slugs
+                })
             });
         })
-    }, [])
-
-    function changeCarouselSize() {
-        const photos = document.querySelectorAll('.Photo');
-        photos.forEach((p : HTMLElement) => {
-            p.setAttribute("style", `max-height: none`);
-        })
-        const slider : HTMLElement = document.querySelector('.Slider');
-        const app : HTMLElement = document.querySelector('.App');
-        const appWidth = app.offsetWidth;
-        const sliderWidth = imgsIds.length == 3 ? 3.5 : 1;
-        slider.setAttribute("style", `width: ${appWidth/sliderWidth}px`);
-        const sliderHeight = slider.offsetHeight;
-        slider.setAttribute("style", `height: ${sliderHeight + 20}px`);
-        photos.forEach(photo => {
-            photo.setAttribute("style", `max-height: ${sliderHeight}px`);
-        });
-    
-        return app;
     }
 
-    window.addEventListener('load', () => {
-        const app = changeCarouselSize();
-        app.style.display = "flex";
-    })
+    // componentDidUpdate() {
+    //     const PhotosContainer : HTMLElement = document.querySelector('.PhotosContainer');
+    //     PhotosContainer.style.animation = PhotosContainerDirection === 1 ? 'movingLeftInside 2s forwards' : 'movingRightInside 2s forwards';
+    // }
 
-    mobileViewPort.addListener(mq => {
-        const carousel = document.querySelector('.Carousel');
-        if(mq.matches) {
-            carousel.setAttribute('style', 'width: 70%');
-            setImgsIds([imgsIds[1]]);
+
+
+    // mobileViewPort.addListener(mq => {
+        // const carousel = document.querySelector('.Carousel');
+        // if(mq.matches) {
+        //     carousel.setAttribute('style', 'width: 70%');
+        //     setImgsIds([imgsIds[1]]);
+        // }
+        // else {
+        //     carousel.setAttribute('style', 'width: 100%');
+        //     setImgsIds([imgsIds[0], imgsIds[0] + 1, imgsIds[0] + 2]);
+        // }
+        // changeCarouselSize();
+    // })
+
+    countNewImgsIds(imgsIds: Array<number>, direction: number, imgsSLUGsLength: number) {
+        return imgsIds.map(id => {
+            return (id + direction*imgsIds.length + imgsSLUGsLength) % imgsSLUGsLength
+        });
+    }
+
+    changePhotos(direction: number = 1) {
+        const { activePhotosContainer, firstPhotosContainer, secondPhotosContainer, imgsSLUGs } = this.state;
+        if(activePhotosContainer === true) {
+            const newImgsIds: Array<number> = this.countNewImgsIds(firstPhotosContainer.imgsIds, direction, imgsSLUGs.length);          
+            this.setState({
+                ...this.state,
+                firstPhotosContainer: {
+                    ...firstPhotosContainer,
+                    position: '0'
+                },
+                secondPhotosContainer: {
+                    position: direction === 1 ? '200%' : '-200%',
+                    imgsIds: newImgsIds
+                }
+            })
         }
         else {
-            carousel.setAttribute('style', 'width: 100%');
-            setImgsIds([imgsIds[0], imgsIds[0] + 1, imgsIds[0] + 2]);
-        }
-        changeCarouselSize();
-    })
-
-    useEffect(() => {
-        if (isInitialMount.current) {
-           isInitialMount.current = false;
-        } else {
-            // Your useEffect code here to be run on update
-            const slider : HTMLElement = document.querySelector('.Slider');
-            slider.style.animation = sliderDirection==1 ? 'movingLeftInside 2s forwards' : 'movingRightInside 2s forwards';
-        }
-    });
-
-    function changePhotos(direction : number) {
-        sliderDirection = direction;
-        const slider : HTMLElement = document.querySelector('.Slider');
-        slider.style.animation = direction == 1 ? 'movingLeftOutside 1s forwards' : 'movingRightOutside 1s forwards';
-        Promise.all(
-            slider.getAnimations().map(animation => {
-                return animation.finished
+            const newImgsIds: Array<number> = this.countNewImgsIds(secondPhotosContainer.imgsIds, direction, imgsSLUGs.length);          
+            this.setState({
+                ...this.state,
+                firstPhotosContainer: {
+                    position: direction === 1 ? '200%' : '-200%',
+                    imgsIds: newImgsIds
+                },
+                secondPhotosContainer: {
+                    ...secondPhotosContainer,
+                    position: '0'
+                }
             })
+        }
+        const PhotosContainerPrev: HTMLElement = document.querySelector('.PhotosContainer.prev');
+        PhotosContainerPrev.style.animation = direction === 1 ? 'movingLeftOutside 0.3s ease-in forwards' : 'movingRightOutside 0.3s ease-out forwards';
+        Promise.all(
+                PhotosContainerPrev.getAnimations().map(animation => {
+                        return animation.finished
+                })
         )
         .then(result => {
-            const newImgsIds : Array<number> = imgsIds.map(id => {
-                return (id + direction*imgsIds.length + imgsSLUGs.length) % imgsSLUGs.length
-            });
-            setImgsIds(newImgsIds);
-            slider.style.marginLeft = direction == 1 ? '200%' : '-200%';
+            const PhotosContainerNext: HTMLElement = document.querySelector('.PhotosContainer.next');
+            PhotosContainerNext.style.animation = direction === 1 ? 'movingLeftInside 0.3s ease-in forwards' : 'movingRightInside 0.3s ease-out forwards';
+            Promise.all(
+                    PhotosContainerNext.getAnimations().map(animation => {
+                            return animation.finished
+                    })
+            )
+            .then(result => {
+                this.setState({
+                    ...this.state,
+                    activePhotosContainer: !activePhotosContainer,
+                })
+            })
+            // this.props.changeCarouselSize();
+            // PhotosContainer.style.marginLeft = direction === 1 ? '200%' : '-200%';
         })
     }
 
-    return (
-        <div className='Carousel'>
-            <Button nameOfClass={'prevBtn'} name={'Prev'} changePhotos={changePhotos} direction={-1}/>
-            <Slider imgsIds={imgsIds} imgsSLUGs={imgsSLUGs}/>
-            <Button nameOfClass={'nextBtn'} name={'Next'} changePhotos={changePhotos} direction={1}/>
-        </div>
-    )
+    render() {
+        const { activePhotosContainer, firstPhotosContainer, secondPhotosContainer, imgsSLUGs } = this.state;
+        return (
+            <div className='Carousel'>
+                <button
+                    className='prevBtn'
+                    onClick={event => {
+                        event.preventDefault();
+                        this.changePhotos(-1);
+                        }
+                    }
+                >Prev</button>
+                <PhotosContainer
+                    active={activePhotosContainer}
+                    position={firstPhotosContainer.position}
+                    imgsIds={firstPhotosContainer.imgsIds}
+                    imgsSLUGs={imgsSLUGs}
+                />
+                <PhotosContainer
+                    active={!activePhotosContainer}
+                    position={secondPhotosContainer.position}
+                    imgsIds={secondPhotosContainer.imgsIds}
+                    imgsSLUGs={imgsSLUGs}
+                />
+                <button
+                className='nextBtn'
+                    onClick={event => {
+                        event.preventDefault();
+                        this.changePhotos(1);
+                        }
+                    }
+                >Next</button>
+            </div>
+        );
+    }
 }
 
 export default Carousel;
