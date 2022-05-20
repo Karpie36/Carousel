@@ -1,9 +1,7 @@
 import React from 'react';
 import '../styles/Carousel.less';
 // import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import '../styles/Button.less';
 import PhotosContainer from './PhotosContainer';
-import { act } from 'react-dom/test-utils';
 
 interface PhotoObject {
     id: string,
@@ -14,13 +12,6 @@ interface PhotoObject {
     downloadUrl: string
 }
 
-let direction = 1;
-const mobileViewPort = window.matchMedia('(max-width: 700px)');
-
-type CarouselPropsType = {
-    changeCarouselSize: () => {}
-}
-
 type CarouselStateType = {
     activePhotosContainer: boolean,
     firstPhotosContainer: { position: string, imgsIds: Array<number> },
@@ -28,8 +19,12 @@ type CarouselStateType = {
     imgsSLUGs: Array<string>
 }
 
-class Carousel extends React.Component<CarouselPropsType, CarouselStateType> {
-    constructor(props: CarouselPropsType) {
+class Carousel extends React.Component<{}, CarouselStateType> {
+    
+    imgsDimensions: {width: number, height: number}[];
+    photoContainerHeightWidthRatio: number;
+
+    constructor(props: {}) {
         super(props);
         this.state = {
             activePhotosContainer: true,
@@ -45,18 +40,110 @@ class Carousel extends React.Component<CarouselPropsType, CarouselStateType> {
         };
     }
 
+    countNormalizedPhotoContainerDimensions() {
+        const imgsDimensSorted: {width: number, height: number}[] = this.imgsDimensions.sort((a, b): number => {
+            if(a['width']/a['height'] < b['width']/b['height']) {
+                return 1;
+            }
+            else if(a['width'] / a['height'] > b['width'] / b['height']) {
+                return -1;
+            }
+            return 0;
+        })
+        const { firstPhotosContainer } = this.state;
+        const imgsVisibleNumber = firstPhotosContainer.imgsIds.length;
+        const norm3Widest = imgsDimensSorted.slice(0, imgsVisibleNumber).map(i => {
+            return { height: imgsDimensSorted[0]['height'], width: (imgsDimensSorted[0]['height']/i['height']) * i['width'] }
+        })
+
+        const photoContainerWidth = norm3Widest.reduce((a,b) => a+b['width'], 0);
+        const photoContainerHeight = norm3Widest[0]['height'];
+
+        this.photoContainerHeightWidthRatio = photoContainerHeight / photoContainerWidth;
+    }
+
+    changeCarouselSize() {
+        const app : HTMLElement = document.querySelector('.App');
+        const appWidth = app.offsetWidth;
+        const containerHeight = this.photoContainerHeightWidthRatio * appWidth;
+        document.querySelector('.PhotosContainer.prev').setAttribute("style", `height: ${containerHeight}px`);
+        document.querySelector('.PhotosContainer.next').setAttribute("style", `height: ${containerHeight}px; display: none`);
+        document.querySelectorAll('.Photo').forEach(photo => {
+            photo.setAttribute("style", `max-height: ${containerHeight}px`);
+        });
+        return app;
+    }
+
+    initWindowOnloadHandler() {
+        window.addEventListener('load', () => {
+            this.countNormalizedPhotoContainerDimensions();
+            const app = this.changeCarouselSize();
+            app.style.display = "flex";
+        })
+    }
+
+    initWindowResizeHandler() {
+        window.addEventListener('resize', event => {
+            event.preventDefault();
+            this.changeCarouselSize();
+        })
+    }
+
+    changeImgsIds(mq: MediaQueryListEvent, visibleImgId: number) {
+        if(mq.matches) {
+            return { active: [visibleImgId], inactive: [0] }
+        }
+        else {
+            return { active: [visibleImgId, visibleImgId + 1, visibleImgId + 2], inactive: [0, 1, 2] }
+        }
+    }
+
+    initMobileScreenHandler() {
+        const mobileViewPort = window.matchMedia('(max-width: 700px)');
+        mobileViewPort.addEventListener("change", mq => {
+            const { activePhotosContainer, firstPhotosContainer, secondPhotosContainer } = this.state;
+            const visibleImgId = activePhotosContainer ? firstPhotosContainer.imgsIds[0] : secondPhotosContainer.imgsIds[0]
+            console.log(activePhotosContainer, firstPhotosContainer, secondPhotosContainer);
+            const newImgsIdsArray = this.changeImgsIds(mq, visibleImgId);
+            this.setState({
+                firstPhotosContainer: {
+                    position: '0',
+                    imgsIds: activePhotosContainer ? newImgsIdsArray['active'] : newImgsIdsArray['inactive']
+                },
+                secondPhotosContainer: {
+                    position: '0',
+                    imgsIds: !activePhotosContainer ? newImgsIdsArray['active'] : newImgsIdsArray['inactive']
+                }
+            })
+            this.countNormalizedPhotoContainerDimensions();
+        })
+    }
+
+    initWindowListeners() {
+        this.initWindowOnloadHandler();
+        this.initWindowResizeHandler();
+        this.initMobileScreenHandler();
+    }
+
     componentDidMount() {
         fetch('https://picsum.photos/v2/list', {
             method: 'GET'
         })
         .then(response => {
             response.json().then((data: Array<PhotoObject>) => {
-                const slugs : Array<string> = []
+                const slugs : Array<string> = [];
+                const dimens: {width: number, height: number}[] = [];
                 data.forEach((element: PhotoObject) => {
-                    const url_address = element["url"];
-                    const slug = url_address.includes('https://unsplash.com/photos/') ? url_address.replace('https://unsplash.com/photos/', '') : '';
+                    const urlAddress = element["url"];
+                    const slug = urlAddress.includes('https://unsplash.com/photos/') ? urlAddress.replace('https://unsplash.com/photos/', '') : '';
                     slug && slugs.push(slug);
+                    dimens.push({
+                        width: Number(element['width']),
+                        height: Number(element['height'])
+                    })
+                    this.imgsDimensions = dimens;
                 });
+                this.initWindowListeners();
                 this.setState({
                     ...this.state,
                     imgsSLUGs: slugs
@@ -64,26 +151,6 @@ class Carousel extends React.Component<CarouselPropsType, CarouselStateType> {
             });
         })
     }
-
-    // componentDidUpdate() {
-    //     const PhotosContainer : HTMLElement = document.querySelector('.PhotosContainer');
-    //     PhotosContainer.style.animation = PhotosContainerDirection === 1 ? 'movingLeftInside 2s forwards' : 'movingRightInside 2s forwards';
-    // }
-
-
-
-    // mobileViewPort.addListener(mq => {
-        // const carousel = document.querySelector('.Carousel');
-        // if(mq.matches) {
-        //     carousel.setAttribute('style', 'width: 70%');
-        //     setImgsIds([imgsIds[1]]);
-        // }
-        // else {
-        //     carousel.setAttribute('style', 'width: 100%');
-        //     setImgsIds([imgsIds[0], imgsIds[0] + 1, imgsIds[0] + 2]);
-        // }
-        // changeCarouselSize();
-    // })
 
     countNewImgsIds(imgsIds: Array<number>, direction: number, imgsSLUGsLength: number) {
         return imgsIds.map(id => {
@@ -102,7 +169,7 @@ class Carousel extends React.Component<CarouselPropsType, CarouselStateType> {
                     position: '0'
                 },
                 secondPhotosContainer: {
-                    position: direction === 1 ? '200%' : '-200%',
+                    position: direction === 1 ? '100%' : '-100%',
                     imgsIds: newImgsIds
                 }
             })
@@ -112,7 +179,7 @@ class Carousel extends React.Component<CarouselPropsType, CarouselStateType> {
             this.setState({
                 ...this.state,
                 firstPhotosContainer: {
-                    position: direction === 1 ? '200%' : '-200%',
+                    position: direction === 1 ? '100%' : '-100%',
                     imgsIds: newImgsIds
                 },
                 secondPhotosContainer: {
@@ -122,7 +189,7 @@ class Carousel extends React.Component<CarouselPropsType, CarouselStateType> {
             })
         }
         const PhotosContainerPrev: HTMLElement = document.querySelector('.PhotosContainer.prev');
-        PhotosContainerPrev.style.animation = direction === 1 ? 'movingLeftOutside 0.3s ease-in forwards' : 'movingRightOutside 0.3s ease-out forwards';
+        PhotosContainerPrev.style.animation = direction === 1 ? 'movingLeftOutside 0.5s ease-in forwards' : 'movingRightOutside 0.5s ease-out forwards';
         Promise.all(
                 PhotosContainerPrev.getAnimations().map(animation => {
                         return animation.finished
@@ -130,7 +197,7 @@ class Carousel extends React.Component<CarouselPropsType, CarouselStateType> {
         )
         .then(result => {
             const PhotosContainerNext: HTMLElement = document.querySelector('.PhotosContainer.next');
-            PhotosContainerNext.style.animation = direction === 1 ? 'movingLeftInside 0.3s ease-in forwards' : 'movingRightInside 0.3s ease-out forwards';
+            PhotosContainerNext.style.animation = direction === 1 ? 'movingLeftInside 0.5s ease-in forwards' : 'movingRightInside 0.5s ease-out forwards';
             Promise.all(
                     PhotosContainerNext.getAnimations().map(animation => {
                             return animation.finished
@@ -142,8 +209,6 @@ class Carousel extends React.Component<CarouselPropsType, CarouselStateType> {
                     activePhotosContainer: !activePhotosContainer,
                 })
             })
-            // this.props.changeCarouselSize();
-            // PhotosContainer.style.marginLeft = direction === 1 ? '200%' : '-200%';
         })
     }
 
