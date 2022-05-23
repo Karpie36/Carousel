@@ -74,14 +74,6 @@ class Carousel extends React.Component<{}, CarouselStateType> {
         return app;
     }
 
-    initWindowOnloadHandler() {
-        window.addEventListener('load', () => {
-            this.countNormalizedPhotoContainerDimensions();
-            const app = this.changeCarouselSize();
-            app.style.display = "flex";
-        })
-    }
-
     initWindowResizeHandler() {
         window.addEventListener('resize', event => {
             event.preventDefault();
@@ -102,8 +94,7 @@ class Carousel extends React.Component<{}, CarouselStateType> {
         const mobileViewPort = window.matchMedia('(max-width: 700px)');
         mobileViewPort.addEventListener("change", mq => {
             const { activePhotosContainer, firstPhotosContainer, secondPhotosContainer } = this.state;
-            const visibleImgId = activePhotosContainer ? firstPhotosContainer.imgsIds[0] : secondPhotosContainer.imgsIds[0]
-            console.log(activePhotosContainer, firstPhotosContainer, secondPhotosContainer);
+            const visibleImgId = activePhotosContainer ? firstPhotosContainer.imgsIds[0] : secondPhotosContainer.imgsIds[0];
             const newImgsIdsArray = this.changeImgsIds(mq, visibleImgId);
             this.setState({
                 firstPhotosContainer: {
@@ -120,7 +111,9 @@ class Carousel extends React.Component<{}, CarouselStateType> {
     }
 
     initWindowListeners() {
-        this.initWindowOnloadHandler();
+        this.countNormalizedPhotoContainerDimensions();
+        const app = this.changeCarouselSize();
+        app.style.display = "flex";
         this.initWindowResizeHandler();
         this.initMobileScreenHandler();
     }
